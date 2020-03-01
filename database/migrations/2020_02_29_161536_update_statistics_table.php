@@ -13,21 +13,13 @@ class UpdateStatisticsTable extends Migration
      */
     public function up()
     {
-        Schema::table('statistics', function (Blueprint $table) {
-
-            $table->dropColumn('user_agent');
-            $table->dropTimestamps();
-            $table->dropSoftDeletes();
-        });
 
         Schema::table('statistics', function (Blueprint $table) {
 
-            $table->string('browser',255);
-            $table->string('engine',255);
-            $table->string('os',255);
-            $table->string('device',255);
-            $table->timestamps();
-            $table->softDeletes();
+            $table->string('browser',255)->after('city_name');
+            $table->string('engine',255)->after('city_name');
+            $table->string('os',255)->after('city_name');
+            $table->string('device',255)->after('city_name');
         });
 
     }
@@ -40,7 +32,7 @@ class UpdateStatisticsTable extends Migration
     public function down()
     {
         Schema::table('statistics', function (Blueprint $table) {
-
+            $table->dropColumn('user_agent');
         });
     }
 }
