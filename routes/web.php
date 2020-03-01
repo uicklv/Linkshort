@@ -10,13 +10,25 @@
 |
 */
 
+App::singleton(\App\AdapterInterface::class, function ($app) {
+    //return new \GeoIp2\Database\Reader($app->make('GeoLite2/GeoLite2-City.mmdb'));
+    //return new \App\MaxmindAdapter($reader);
+
+    return new \App\IpapiAdapter();
+
+});
+
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/r/{code}', function ($code) {
+Route::get('/r/{code}', function ($code, \App\AdapterInterface $adapter) {
+    dd($adapter);
     $link = \App\Link::where('short_code', $code)->get()->first();
     $sourceLink = \App\Link::where('short_code', $code)->value('source_link');
+
+    $adapter->parse(request()->ip());
 
     $city = null;
     $countryCode = null;
@@ -24,16 +36,7 @@ Route::get('/r/{code}', function ($code) {
     $statistic->user_agent = request()->userAgent();
     $parser = new WhichBrowser\Parser($statistic->user_agent);
 
-    $reader = new \GeoIp2\Database\Reader(resource_path() . '/GeoLite2/GeoLite2-City.mmdb');
 
-    try {
-       $record = $reader->city(request()->ip());
-   } catch (\GeoIp2\Exception\AddressNotFoundException $exception) {
-        $record = $reader->city(env('DEFAULT_IP_ADDR'));
-    } finally {
-        $city = $record->city->name;
-        $countryCode = $record->country->isoCode;
-   }
 
 //    $result = file_get_contents('http://ip-api.com/json/' . request()->ip());
 //    $data = json_decode($result, true);
